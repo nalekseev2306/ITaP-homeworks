@@ -51,7 +51,7 @@ pair<queue*, queue*> strToQueue() {
 
 // находим максимальный элемент
 int maxElem(queue* h, queue* t) {
-    long long int max = -1e10;
+    int max = INT_MIN;
     while(h) {
         int x = h->inf;
         if(x > max) max = x;

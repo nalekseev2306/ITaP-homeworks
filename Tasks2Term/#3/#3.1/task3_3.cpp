@@ -52,7 +52,7 @@ stack* strToStack() {
 
 // ищем максимальный элементв в стеке
 int maxElem(stack* h) {
-    long long int max = -1e10;
+    int max = INT_MIN;
     while(h) {
         int x = h->inf;
         if(x > max) max = x;
@@ -63,7 +63,7 @@ int maxElem(stack* h) {
 
 // ищем минимальный элемент в стеке
 int minElem(stack* h) {
-    long long int min = 1e10;
+    int min = INT_MAX;
     while(h) {
         int x = h->inf;
         if(x < min) min = x;
