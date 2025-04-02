@@ -152,6 +152,7 @@ int main() {
         cout << nota << ' ';
         ans.first = ans.first->next;
     }
+    cout << endl;
 
     system("pause");
     return 0;
