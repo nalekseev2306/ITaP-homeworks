@@ -69,8 +69,21 @@ void delNode(list*& h, list*& t, list* r) {
 }
 
 void result(list*& h, list*& t) {
-    if(h->inf % 2 == 0) delNode(h, t, h);
-    if(t->inf % 2 == 0) delNode(h, t, t);
+    list* tmpH = h, * tmpT = t;
+    while(tmpH) {
+        if(tmpH->inf % 2 == 0) {
+            delNode(h, t, tmpH);
+            break;
+        }
+        tmpH = tmpH->next;
+    }
+    while(tmpT) {
+        if(tmpT->inf % 2 == 0) {
+            delNode(h, t, tmpT);
+            break;
+        }
+        tmpT = tmpT->prev;
+    }
 }
 
 int main() {
