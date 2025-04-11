@@ -70,14 +70,16 @@ void delNode(list*& h, list*& t, list* r) {
 
 void result(list*& h, list*& t) {
     list* tmpH = h, * tmpT = t;
+    bool fl = false;
     while(tmpH) {
         if(tmpH->inf % 2 == 0) {
             delNode(h, t, tmpH);
+            fl = true;
             break;
         }
         tmpH = tmpH->next;
     }
-    while(tmpT) {
+    while(fl && tmpT) {
         if(tmpT->inf % 2 == 0) {
             delNode(h, t, tmpT);
             break;
