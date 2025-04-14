@@ -1,9 +1,52 @@
 #include <iostream>
 #include <vector>
-#include <list>
+// #include <list>
 
 using namespace std;
 
+// список >>>
+struct Node {
+    int inf;
+    Node* next;
+    Node* prev;
+
+    Node(int _inf) : inf(_inf), next(nullptr), prev(nullptr) {}
+};
+
+struct list {
+    Node* head;
+    Node* tail;
+
+    list() : head(nullptr), tail(nullptr) {}
+
+    bool is_empty() {
+        return head == nullptr;
+    }
+
+    void push_back(int _inf) {
+        Node* p = new Node(_inf);
+        if (is_empty()) {
+            head = tail = p;
+        } else {
+            p->prev = tail;
+            tail->next = p;
+            tail = p;
+        }
+    }
+
+    void print() {
+        Node* cur = head;
+        while (cur) {
+            cout << cur->inf;
+            if(cur->next) cout << " -> ";
+            cur = cur->next;
+        }
+        cout << endl;
+    }
+};
+// <<< список
+
+// стек >>>
 struct stack {
     int inf;
     stack* next;
@@ -23,7 +66,9 @@ int pop(stack*& h) {
     delete r;
     return x;
 }
+// <<< стек
 
+// очередь >>>
 struct queue {
     int inf;
     queue* next;
@@ -52,16 +97,17 @@ void push(queue*& h, queue*& t, int x) {
         t = r;
     }
 }
+// <<< очередь
 
 // создание нового ребра для неориентированного графа
-void addEdge(vector<list<int>>& adjList, int scr, int x) {
+void addEdge(vector<list>& adjList, int scr, int x) {
     adjList[scr].push_back(x);
     adjList[x].push_back(scr);
 }
 
 // алгоритм обхода в ширину
-list<int> bft(vector<list<int>> adjList, int x) {
-    list<int> path;
+list bft(vector<list> adjList, int x) {
+    list path;
     vector<int> used(adjList.size(), 0);
     queue* h = NULL, * t = NULL;
 
@@ -73,12 +119,14 @@ list<int> bft(vector<list<int>> adjList, int x) {
     while(h) {
         int tmp = pop(h, t);
         // находим все возможные непройденные вершины, в которые можно попасть из текущей
-        for(auto it = adjList[tmp].begin(); it != adjList[tmp].end(); it++) { 
-            if(!used[*it]) {
-                used[*it] = 1;
-                path.push_back(*it);
-                push(h, t, *it); // добавляем их в очередь
+        Node* r = adjList[tmp].head;
+        while(r) {
+            if(!used[r->inf]) {
+                used[r->inf] = 1;
+                path.push_back(r->inf);
+                push(h, t, r->inf); // добавляем их в очередь
             }
+            r = r->next;
         }
     }
 
@@ -86,8 +134,8 @@ list<int> bft(vector<list<int>> adjList, int x) {
 }
 
 // алгоритм обхода в глубину
-list<int> dft(vector<list<int>> adjList, int x) {
-    list<int> path;
+list dft(vector<list> adjList, int x) {
+    list path;
     stack* hs = NULL; // стек дял возвращения на предыдущие вершины
     queue* hq = NULL, * tq = NULL;
     vector<int> used(adjList.size(), 0);
@@ -101,22 +149,20 @@ list<int> dft(vector<list<int>> adjList, int x) {
     while(hq) {
         bool fl = true; // отвечает за подъём на предыдущую вершину
         int tmp = pop(hq, tq);
-        auto it = adjList[tmp].begin();
+        Node* r = adjList[tmp].head;
         // находим следующую непройденную вершину для спуска ниже
-        while(it != adjList[tmp].end()) {
-            if(used[*it] == 0) {
+        while(r) {
+            if(!used[r->inf]) {
                 // отмечаем и добавляем вершину в очередь и стек
-                used[*it] = 1;
-                path.push_back(*it);
-                push(hs, *it);
-                push(hq, tq, *it);
+                used[r->inf] = 1;
+                path.push_back(r->inf);
+                push(hs, r->inf);
+                push(hq, tq, r->inf);
                 fl = false; // продолжаем спуск
                 break;
             }
-            it++;
+            r = r->next;
         }
-        // если из вершины больше некуда попасть - удаляем её
-        if(adjList[tmp].begin() == adjList[tmp].end()) pop(hs);
         // поднимаемся на предыдущую вершину
         if(fl && hs) push(hq, tq, pop(hs));
     }
@@ -124,19 +170,11 @@ list<int> dft(vector<list<int>> adjList, int x) {
     return path;
 }
 
-void printList(list<int> lst) {
-    int i = 0;
-    for(auto it = lst.begin(); it != lst.end(); it++, i++) {
-        cout << *it;
-        if(i != lst.size() - 1) cout << " -> ";
-    }
-}
-
 int main() {
 
     // создаём неориентированный граф
     int verts = 7;
-    vector<list<int>> adjList;
+    vector<list> adjList;
     adjList.resize(verts);
     addEdge(adjList, 0, 1);
     addEdge(adjList, 0, 2);
@@ -149,9 +187,9 @@ int main() {
 
     // результат работы двух алгоритмов
     cout << "Result of BFT algorithm: ";
-    printList(bft(adjList, 0));
-    cout << endl << "Result of DFT algorithm: ";
-    printList(dft(adjList, 0));
+    bft(adjList, 0).print();
+    cout << "Result of DFT algorithm: ";
+    dft(adjList, 0).print();
 
     return 0;
 
