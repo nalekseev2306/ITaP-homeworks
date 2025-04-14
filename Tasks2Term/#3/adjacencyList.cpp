@@ -108,11 +108,11 @@ void addEdge(vector<list>& adjList, int scr, int x) {
 // алгоритм обхода в ширину
 list bft(vector<list> adjList, int x) {
     list path;
-    vector<int> used(adjList.size(), 0);
+    vector<bool> used(adjList.size(), false);
     queue* h = NULL, * t = NULL;
 
     // отмечаем начальную вершину и добавляем в очередь
-    used[x] = 1;
+    used[x] = true;
     path.push_back(x);
     push(h, t, x);
 
@@ -122,7 +122,7 @@ list bft(vector<list> adjList, int x) {
         Node* r = adjList[tmp].head;
         while(r) {
             if(!used[r->inf]) {
-                used[r->inf] = 1;
+                used[r->inf] = true;
                 path.push_back(r->inf);
                 push(h, t, r->inf); // добавляем их в очередь
             }
@@ -138,10 +138,10 @@ list dft(vector<list> adjList, int x) {
     list path;
     stack* hs = NULL; // стек дял возвращения на предыдущие вершины
     queue* hq = NULL, * tq = NULL;
-    vector<int> used(adjList.size(), 0);
+    vector<bool> used(adjList.size(), false);
 
     // отмечаем начальную вершину и добавляем в очередь и в стек
-    used[x] = 1;
+    used[x] = true;
     path.push_back(x);
     push(hs, x);
     push(hq, tq, x);
@@ -154,7 +154,7 @@ list dft(vector<list> adjList, int x) {
         while(r) {
             if(!used[r->inf]) {
                 // отмечаем и добавляем вершину в очередь и стек
-                used[r->inf] = 1;
+                used[r->inf] = true;
                 path.push_back(r->inf);
                 push(hs, r->inf);
                 push(hq, tq, r->inf);
