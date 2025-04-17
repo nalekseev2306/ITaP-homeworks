@@ -128,7 +128,7 @@ Tree* meanLeaves(Tree* rt) {
 // наименьший узел в правом поддереве
 Tree* getSuccessor(Tree* cur){
     cur = cur->right;
-    while (cur && cur->left)
+    while(cur && cur->left)
         cur = cur->left;
     return cur;
 }
@@ -138,9 +138,9 @@ Tree* delNode(Tree* rt, int x){
 
     if(!rt) return rt;
 
-    if (rt->inf > x)
+    if(rt->inf > x)
         rt->left = delNode(rt->left, x);
-    else if (rt->inf < x)
+    else if(rt->inf < x)
         rt->right = delNode(rt->right, x);
 
     else {
