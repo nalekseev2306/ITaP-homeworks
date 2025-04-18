@@ -125,42 +125,66 @@ Tree* meanLeaves(Tree* rt) {
     }
 }
 
-// наименьший узел в правом поддереве
-Tree* getSuccessor(Tree* cur){
-    cur = cur->right;
-    while(cur && cur->left)
-        cur = cur->left;
-    return cur;
-}
-
 // удаляем звено дерева
-Tree* delNode(Tree* rt, int x){
-
-    if(!rt) return rt;
-
-    if(rt->inf > x)
-        rt->left = delNode(rt->left, x);
-    else if(rt->inf < x)
-        rt->right = delNode(rt->right, x);
-
-    else {
-        // только правый ребёнок или отсутствуют оба
-        if(!rt->left) {
-            Tree* tmp = rt->right;
-            delete rt;
-            return tmp;
+Tree* delNode(Tree* rt, int x) {
+    Tree* cur = rt;
+    Tree* parent = nullptr;
+    // ищем удаляемый элемент
+    while(cur && cur->inf != x) {
+        parent = cur;
+        if(x < cur->inf) {
+            cur = cur->left;
+        } 
+        else {
+            cur = cur->right;
         }
-        // только левый ребёнок
-        if(!rt->right) {
-            Tree* tmp = rt->left;
-            delete rt;
-            return tmp;
-        }
-        // оба ребёнка
-        Tree* succ = getSuccessor(rt);
-        rt->inf = succ->inf;
-        rt->right = delNode(rt->right, succ->inf);
     }
+
+    if(!cur) return rt;
+
+    // если у узла нет детей или только один ребенок
+    if(!cur->left || !cur->right) {
+        Tree* replacement = cur->left ? cur->left : cur->right;
+ 
+        if(!parent) {
+            if (replacement) replacement->parent = nullptr;
+            delete cur;
+            return replacement;
+        }
+
+        if(parent->left == cur) {
+            parent->left = replacement;
+        }
+        else {
+            parent->right = replacement;
+        }
+
+        if(replacement) replacement->parent = parent;
+        delete cur;
+    }
+    // если два ребёнка у узла
+    else {
+        Tree* tmpParent = cur;
+        Tree* tmp = cur->right;
+
+        while(tmp->left) {
+            tmpParent = tmp;
+            tmp = tmp->left;
+        }
+
+        if(tmpParent != cur) {
+            tmpParent->left = tmp->right;
+            if(tmp->right) tmp->right->parent = tmpParent;
+        }
+        else {
+            tmpParent->right = tmp->right;
+            if(tmp->right) tmp->right->parent = tmpParent;
+        }
+
+        cur->inf = tmp->inf;
+        delete tmp;
+    }
+
     return rt;
 }
 
