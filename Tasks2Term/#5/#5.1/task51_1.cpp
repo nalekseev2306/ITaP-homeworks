@@ -40,12 +40,12 @@ vector<vector<int>> createGraph(vector<Edge> edges, int n, char oriented) {
     graph.resize(n);
     for (Edge edge: edges) {
         if (oriented == 'y') {
-            if (edge.x < n || edge.y < n) {
+            if (edge.x < n && edge.y < n) {
                 graph[edge.x].push_back(edge.y);
             }
         }
         else {
-            if (edge.x < n || edge.y < n) {
+            if (edge.x < n && edge.y < n) {
                 graph[edge.x].push_back(edge.y);
                 graph[edge.y].push_back(edge.x);
             }
