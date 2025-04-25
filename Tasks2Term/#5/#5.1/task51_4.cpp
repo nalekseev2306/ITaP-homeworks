@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <set>
 #include <algorithm>
 #include <string>
 #include <fstream>
@@ -58,9 +59,10 @@ vector<vector<int>> createGraph(vector<Edge> edges, int n, char oriented) {
     return graph;
 }
 
-vector<int> pr;
+vector<int> parent;
 vector<int> used;
 vector<vector<int>> cycles;
+vector<vector<int>> cyclesSort;
 
 // добавляем цикл
 void addCycles(int start, int end) {
@@ -69,36 +71,47 @@ void addCycles(int start, int end) {
     
     while (cur != start) {
         tmp.push_back(cur);
-        cur = pr[cur];
+        cur = parent[cur];
     }
     tmp.push_back(start);
+
     reverse(tmp.begin(), tmp.end());
-    tmp.push_back(start);
     cycles.push_back(tmp);
+    sort(tmp.begin(), tmp.end());
+    cyclesSort.push_back(tmp);
 }
 
 // обход в глубину с условием
-void dfsCycle(vector<vector<int>> graph, int x) {
-    used[x] = 1; // помечаем как посещённую
+void dfsCycle(vector<vector<int>> graph, int start) {
+    used[start] = 1; // помечаем как посещённую
 
-    for (int i = 0; i < graph[x].size(); ++i) {
-        if (pr[x] == graph[x][i]) continue;
-        if (!used[graph[x][i]]) {
-            pr[graph[x][i]] = x;
-            dfsCycle(graph, graph[x][i]);
+    for (auto cur: graph[start]) {
+        if (cur == parent[start]) continue;
+        if (!used[cur]) {
+            parent[cur] = start;
+            dfsCycle(graph, cur);
         } 
-        else if (used[graph[x][i]] == 1) {
-            addCycles(graph[x][i], x);
+        else if (used[cur] == 1) {
+            addCycles(cur, start);
         }
     }
 
-    used[x] = 2; // помечаем как обработанную
+    used[start] = 2; // помечаем как обработанную
 }
 
 // удаляем дубликаты циклов
-void rmDuplicates() {
-    for (int i = 0; i < cycles.size(); i++)
-        cycles[i].erase(unique(cycles[i].begin(), cycles[i].end()), cycles[i].end());
+void rmDduplicates() {
+    for (int i = 0; i < cyclesSort.size(); i++) {
+        for (int j = i + 1; j < cyclesSort.size(); ) {
+            if (cyclesSort[i] == cyclesSort[j]) {
+                cyclesSort.erase(cyclesSort.begin() + j);
+                cycles.erase(cycles.begin() + j);
+            }
+            else {
+                j++;
+            }
+        }
+    }
 }
 
 int main() {
@@ -110,28 +123,36 @@ int main() {
     cin >> orient;
     vector<vector<int>> graph = createGraph(edges.second, edges.first, orient);
 
-    pr.resize(edges.first, -1);
+    parent.resize(edges.first, -1);
     used.resize(edges.first, 0);
 
-    for (int i = 0; i < edges.first; ++i) {
-        if (!used[i])
-            dfsCycle(graph, i);
+    // для каждой вершины ищем циклы
+    for (int i = 0; i < edges.first; i++) {
+        dfsCycle(graph, i);
+        used.clear();
+        parent.clear();
+        used.resize(edges.first, 0);
+        parent.resize(edges.first, -1);
     }
-    rmDuplicates();
+    rmDduplicates();
 
+    // выводим циклы
     if (cycles.empty()) {
         cout << "There are no cycles!" << endl;
-    } else {
+    }
+    else {
         cout << "Cycles found: " << cycles.size() << endl;
-        for (int i = 0; i < cycles.size(); i++) {
-            cout << "Cycle " << i+1 << ": ";
-            for (int vert : cycles[i]) {
+        for (auto cycle: cycles) {
+            static int i = 0;
+            cout << "Cycle " << ++i << ": ";
+            for (int vert : cycle) {
                 cout << vert << " ";
             }
-            cout << endl;
+            cout << cycle[0] << endl;
         }
     }
-
+    
+    // 3 4 0 и 0 2 4 - не нашлись такие циклы
     system("pause");
     return 0;
 
