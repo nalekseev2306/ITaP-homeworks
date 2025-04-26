@@ -75,10 +75,12 @@ void addCycles(int start, int end) {
     }
     tmp.push_back(start);
 
-    reverse(tmp.begin(), tmp.end());
-    cycles.push_back(tmp);
-    sort(tmp.begin(), tmp.end());
-    cyclesSort.push_back(tmp);
+    if (tmp.size() > 2) {
+        reverse(tmp.begin(), tmp.end());
+        cycles.push_back(tmp);
+        sort(tmp.begin(), tmp.end());
+        cyclesSort.push_back(tmp);
+    }
 }
 
 // обход в глубину с условием
@@ -86,7 +88,7 @@ void dfsCycle(vector<vector<int>> graph, int start) {
     used[start] = 1; // помечаем как посещённую
 
     for (auto cur: graph[start]) {
-        if (cur == parent[start]) continue;
+        if (parent[cur] == start) continue;
         if (!used[cur]) {
             parent[cur] = start;
             dfsCycle(graph, cur);
@@ -96,7 +98,7 @@ void dfsCycle(vector<vector<int>> graph, int start) {
         }
     }
 
-    used[start] = 2; // помечаем как обработанную
+    used[start] = 0; // помечаем как обработанную
 }
 
 // удаляем дубликаты циклов
@@ -128,11 +130,8 @@ int main() {
 
     // для каждой вершины ищем циклы
     for (int i = 0; i < edges.first; i++) {
-        dfsCycle(graph, i);
-        used.clear();
-        parent.clear();
-        used.resize(edges.first, 0);
-        parent.resize(edges.first, -1);
+        if (!used[i])
+            dfsCycle(graph, i);
     }
     rmDduplicates();
 
@@ -152,7 +151,6 @@ int main() {
         }
     }
     
-    // 3 4 0 и 0 2 4 - не нашлись такие циклы
     system("pause");
     return 0;
 
