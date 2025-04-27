@@ -192,66 +192,143 @@ void insert(Tree*& rt, Tree* prev, int val) {
 // <<< вставка нового элемента в дерево
 
 // >>> удаляем звено дерева
-Tree* delNode(Tree* rt, int x) {
-    Tree* cur = rt;
-    Tree* parent = nullptr;
-    // ищем удаляемый элемент
-    while(cur && cur->inf != x) {
-        parent = cur;
-        if(x < cur->inf) {
-            cur = cur->left;
-        } 
-        else {
-            cur = cur->right;
+void deleteCase2(Tree*& rt, Tree* cur);
+void deleteCase3(Tree*& rt, Tree* cur);
+void deleteCase4(Tree*& rt, Tree* cur);
+void deleteCase5(Tree*& rt, Tree* cur);
+void deleteCase6(Tree*& rt, Tree* cur);
+
+void deleteCase1(Tree*& rt, Tree* cur) {
+    if(!cur->parent)
+        cur->left ? rt = cur->left: rt = cur->right;
+    else deleteCase2(rt, cur); 
+}
+
+void deleteCase2(Tree*& rt, Tree* cur) {
+    Tree* s = sibling(cur);
+    if(s->color == RED) {
+        cur->parent->color = RED;
+        s->color = BLACK;
+        cur == cur->parent->left ?
+        leftRotate(cur->parent, rt): rightRotate(cur->parent, rt);
+    }
+    deleteCase3(rt, cur);
+}
+
+void deleteCase3(Tree*& rt, Tree* cur) {
+    Tree* s = sibling(cur);
+    if(cur->parent->color == BLACK && s->color == BLACK
+        && (isLeaf(s->left) || s->left->color == BLACK)
+        && (isLeaf(s->right) || s->right->color == BLACK)) {
+            s->color = RED;
+            deleteCase1(rt, cur);
+        }
+    else deleteCase4(rt, cur);
+}
+
+void deleteCase4(Tree*& rt, Tree* cur) {
+    Tree* s = sibling(cur);
+    if(cur->parent->color == RED && s->color == BLACK
+        && (isLeaf(s->left) || s->left->color == BLACK)
+        && (isLeaf(s->right) || s->right->color == BLACK)) {
+            s->color = RED;
+            cur->parent->color = BLACK;
+        }
+    else deleteCase5(rt, cur);
+}
+
+void deleteCase5(Tree*& rt, Tree* cur) {
+    Tree* s = sibling(cur);
+    if(s->color == BLACK) {
+        if(cur == cur->parent->left
+            && (!isLeaf(s->left) && s->left->color == RED)
+            && (isLeaf(s->right) || s->right->color == BLACK)) {
+                s->color = RED;
+                s->left->color = BLACK;
+                rightRotate(s, rt);
+        }
+        else if(cur == cur->parent->right
+            && (!isLeaf(s->right) && s->right->color == RED)
+            && (isLeaf(s->left) || s->left->color == BLACK)) {
+                s->color = RED;
+                s->right->color = BLACK;
+                leftRotate(s, rt);
         }
     }
+    deleteCase6(rt, cur);
+}
 
-    if(!cur) return rt;
-
-    // если у узла нет детей или только один ребенок
-    if(!cur->left || !cur->right) {
-        Tree* replacement = cur->left ? cur->left : cur->right;
- 
-        if(!parent) {
-            if (replacement) replacement->parent = nullptr;
-            delete cur;
-            return replacement;
-        }
-
-        if(parent->left == cur) {
-            parent->left = replacement;
-        }
-        else {
-            parent->right = replacement;
-        }
-
-        if(replacement) replacement->parent = parent;
-        delete cur;
+void deleteCase6(Tree*& rt, Tree* cur) {
+    Tree* s = sibling(cur);
+    s->color = cur->parent->color;
+    cur->parent->color = BLACK;
+    if(cur == cur->parent->left) {
+        s->right->color = BLACK;
+        leftRotate(cur->parent, rt);
     }
-    // если два ребёнка у узла
     else {
-        Tree* tmpParent = cur;
-        Tree* tmp = cur->right;
+        s->left->color = BLACK;
+        rightRotate(cur->parent, rt);
+    }
+}
 
-        while(tmp->left) {
-            tmpParent = tmp;
-            tmp = tmp->left;
+void replace(Tree*& rt, Tree* cur) {
+    if(cur->left) {
+        Tree* ch = cur->left;
+        ch->parent = cur->parent;
+        if(cur->parent) {
+            cur == cur->parent->left ? 
+            cur->parent->left = ch:
+            cur->parent->right = ch;
         }
+    }
+    else {
+        Tree* ch = cur->right;
+        ch->parent = cur->parent;
+        if(cur->parent) {
+            cur == cur->parent->left ? 
+            cur->parent->left = ch:
+            cur->parent->right = ch;
+        }
+    }
+}
 
-        if(tmpParent != cur) {
-            tmpParent->left = tmp->right;
-            if(tmp->right) tmp->right->parent = tmpParent;
+void deleteNode(Tree*& rt, Tree* cur) {
+    if(cur->left && cur->right) {
+        Tree* buf;
+        if(cur->inf <= rt->inf) {
+            buf = cur->left;
+            while (buf && buf->right)
+                buf = buf->right;
         }
         else {
-            tmpParent->right = tmp->right;
-            if(tmp->right) tmp->right->parent = tmpParent;
+            buf = cur->right;
+            while (buf && buf->left)
+                buf = buf->left;
         }
-
-        cur->inf = tmp->inf;
-        delete tmp;
+        int tmp = buf->inf;
+        buf->inf = cur->inf;
+        cur->inf = tmp;
+        cur = buf;
     }
-
-    return rt;
+    if(cur->left || cur->right) {
+        Tree* ch;
+        if(cur->left && !cur->right) ch = cur->left;
+        if(!cur->left && cur->right) ch = cur->right;
+        replace(rt, cur);
+        if(cur->color == BLACK)
+            if(ch->color == RED) ch->color = BLACK;
+            else deleteCase1(rt, cur);
+    }
+    else {
+        if(cur->color == BLACK) deleteCase1(rt, cur);
+        else {
+            cur == cur->parent->left ?
+            cur->parent->left = nullptr:
+            cur->parent->right = nullptr;
+        }
+    }
+    delete cur;
 }
 // <<< удаляем звено дерева
 
@@ -281,7 +358,7 @@ Tree* createTree() {
 
 int main() {
 
-    // 10 5 15 4 7 13 17
+    // 15 11 22 6 13 17 25 1 8 27
     vector<Tree*> l;
     Tree* rt = createTree();
 
@@ -289,6 +366,19 @@ int main() {
     int sum = 0;
     for(auto i: l) sum += i->inf;
     cout << "Sum of leaves = " << sum << endl;
+
+    cout << "Red-black tree: " << endl;
+    print(rt);
+
+    int x;
+    cout << "Enter node: ";
+    cin >> x;
+    Tree* del = rt;
+    while(x != del->inf && del) {
+        if(x < del->inf) del = del->left;
+        else del = del->right;
+    }
+    deleteNode(rt, del);
 
     cout << "Red-black tree: " << endl;
     print(rt);
