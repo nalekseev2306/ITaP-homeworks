@@ -13,13 +13,6 @@ struct Tree {
     Tree(string val) : inf(val), left(nullptr), right(nullptr), parent(nullptr) {}
 };
 
-int priority(string ch) {
-    if(ch == "(" || ch == ")") return 1;
-    else if(ch == "+" || ch == "-") return 2;
-    else if(ch == "*" || ch == "/") return 3;
-    else return 0;
-}
-
 // разбиваем выражение на состовляющие
 vector<string> getElems(string str) {
     vector<string> elems;
