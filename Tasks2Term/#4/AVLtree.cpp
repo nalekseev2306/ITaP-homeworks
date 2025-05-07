@@ -76,30 +76,30 @@ int balanceFactor(Tree* cur) {
 }
 
 // >>> повороты
-Tree* LLrotate(Tree* x) {
-    Tree* y = x->left;
-    x->left = y->right;
-    if (y->right) y->right->parent = x;
-    y->right = x;
-    y->parent = x->parent;
-    x->parent = y;
+Tree* LLrotate(Tree* cur) {
+    Tree* p = cur->left;
+    cur->left = p->right;
+    if (p->right) p->right->parent = cur;
+    p->right = cur;
+    p->parent = cur->parent;
+    cur->parent = p;
     
-    updateHeight(x);
-    updateHeight(y);
-    return y;
+    updateHeight(cur);
+    updateHeight(p);
+    return p;
 }
 
-Tree* RRrotate(Tree* x) {
-    Tree* y = x->right;
-    x->right = y->left;
-    if (y->left) y->left->parent = x;
-    y->left = x;
-    y->parent = x->parent;
-    x->parent = y;
+Tree* RRrotate(Tree* cur) {
+    Tree* p = cur->right;
+    cur->right = p->left;
+    if (p->left) p->left->parent = cur;
+    p->left = cur;
+    p->parent = cur->parent;
+    cur->parent = p;
     
-    updateHeight(x);
-    updateHeight(y);
-    return y;
+    updateHeight(cur);
+    updateHeight(p);
+    return p;
 }
 // <<< повороты
 
