@@ -1,3 +1,4 @@
+20
 Ivanov Junior 15.01.1995 2 35000
 Petrova Senior 09.12.1988 9 50000
 Petrov Middle 22.03.1988 5 50000
