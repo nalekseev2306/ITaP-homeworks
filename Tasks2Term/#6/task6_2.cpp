@@ -40,11 +40,12 @@ struct Employee {
     Date birth;
     string surname, post;
     int salary, exp;
+    bool is_empty = true;
 
     Employee(string _sur, string _p, Date _b, int _e, int _s) :
-    surname(_sur), post(_p), birth(_b), exp(_e), salary(_s) {}
+    surname(_sur), post(_p), birth(_b), exp(_e), salary(_s), is_empty(false) {}
 
-    Employee() : surname(""), post(""), birth(Date()), exp(0), salary(0) {}
+    Employee() : is_empty(true) {}
 };
 
 ostream& operator <<(ostream& os, const Employee &emp) {
@@ -59,7 +60,7 @@ vector<Employee> htable;
 void insert(string surname, string post, string date, int exp, int salary) {
     int j = 0;
     while (j < m) {
-        if (htable[toDate(date).y % m + j].surname == "") {
+        if (htable[toDate(date).y % m + j].is_empty) {
             htable[toDate(date).y % m + j] = Employee(surname, post, toDate(date), exp, salary);
             break;
         }
@@ -78,6 +79,7 @@ void readData(const string& fileName) {
 
     if (n > m) m = n;
     htable.resize(m, Employee());
+
 
     while (getline(file, line)) {
         istringstream iss(line);
@@ -123,8 +125,9 @@ int main() {
             return 0;
         case '1':
             cout << "Hash-table: " << endl;
-            for (Employee emp: htable)
-                cout << emp << endl;
+            for (Employee emp: htable) {
+                if (!emp.is_empty) cout << emp << endl;
+            }
             cout << endl;
             break;
         case '2':
