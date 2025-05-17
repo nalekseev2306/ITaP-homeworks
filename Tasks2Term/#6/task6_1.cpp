@@ -182,9 +182,10 @@ int main() {
             return 0;
         case '1':
             cout << "Hash-table: " << endl;
-            for (auto lst: htable) {
-                if (!lst.is_empty()) {
-                    lst.print();
+            for (int i = 0; i < htable.size(); i++) {
+                if (!htable[i].is_empty()) {
+                    cout << i << ": ";
+                    htable[i].print();
                 }
             }
             cout << endl;

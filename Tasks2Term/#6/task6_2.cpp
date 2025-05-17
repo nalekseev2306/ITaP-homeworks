@@ -126,7 +126,11 @@ int main() {
         case '1':
             cout << "Hash-table: " << endl;
             for (Employee emp: htable) {
-                if (!emp.is_empty) cout << emp << endl;
+                static int i = 0;
+                cout << i << " ";
+                if (!emp.is_empty) cout << emp;
+                cout << endl;
+                i++;
             }
             cout << endl;
             break;
